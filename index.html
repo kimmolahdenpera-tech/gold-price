@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kullan Spot Hinta</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d0d;
+      color: #c8a84b;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .label {
+      font-size: 1.1rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: #7a6028;
+      margin-bottom: 1.5rem;
+    }
+
+    .price-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .currency {
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: #a07830;
+      margin-bottom: 0.3rem;
+    }
+
+    .price {
+      font-size: clamp(4rem, 15vw, 9rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      transition: color 0.3s ease;
+    }
+
+    .price.up   { color: #e8c46a; }
+    .price.down { color: #a07020; }
+    .price.init { color: #c8a84b; }
+
+    .unit {
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      color: #5a4818;
+      margin-top: 1rem;
+    }
+
+    .meta {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .updated {
+      font-size: 0.85rem;
+      color: #4a3a12;
+      letter-spacing: 0.1em;
+    }
+
+    .status {
+      font-size: 0.75rem;
+      color: #3a2a0a;
+      letter-spacing: 0.1em;
+      min-height: 1em;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4a3a12;
+      margin-right: 6px;
+      vertical-align: middle;
+      transition: background 0.3s;
+    }
+    .dot.live { background: #c8a84b; animation: pulse 2s infinite; }
+    .dot.error { background: #8b2020; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="label">Kullan Spot Hinta</div>
+
+  <div class="price-wrap">
+    <div class="currency">USD</div>
+    <div class="price init" id="price">—</div>
+  </div>
+
+  <div class="unit">per troy unssi (oz)</div>
+
+  <div class="meta">
+    <div class="updated" id="updated">Haetaan...</div>
+    <div class="status"><span class="dot" id="dot"></span><span id="status-text">Yhdistetään</span></div>
+  </div>
+
+  <script>
+    const priceEl   = document.getElementById('price');
+    const updatedEl = document.getElementById('updated');
+    const dotEl     = document.getElementById('dot');
+    const statusEl  = document.getElementById('status-text');
+
+    let lastPrice = null;
+
+    function formatPrice(n) {
+      return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    async function fetchPrice() {
+      try {
+        const res = await fetch('/api/gold');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        const p = parseFloat(data.price);
+
+        if (lastPrice !== null) {
+          priceEl.classList.remove('up', 'down', 'init');
+          priceEl.classList.add(p > lastPrice ? 'up' : p < lastPrice ? 'down' : 'init');
+        }
+
+        priceEl.textContent = formatPrice(p);
+        lastPrice = p;
+
+        const now = new Date();
+        updatedEl.textContent = `Päivitetty: ${now.toLocaleTimeString('fi-FI')}`;
+        dotEl.className = 'dot live';
+        statusEl.textContent = 'Live';
+      } catch (err) {
+        dotEl.className = 'dot error';
+        statusEl.textContent = `Virhe: ${err.message}`;
+      }
+    }
+
+    fetchPrice();
+    setInterval(fetchPrice, 10_000);
+  </script>
+</body>
+</html>
