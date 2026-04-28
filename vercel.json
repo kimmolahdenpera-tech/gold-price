@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/gold.py", "use": "@vercel/python" },
+    { "src": "index.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/gold", "dest": "/api/gold.py" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
