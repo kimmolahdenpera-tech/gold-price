@@ -97,6 +97,15 @@
       0%, 100% { opacity: 1; }
       50%       { opacity: 0.3; }
     }
+
+    .version {
+      position: fixed;
+      bottom: 1rem;
+      right: 1.2rem;
+      font-size: 0.7rem;
+      color: #2a1e08;
+      letter-spacing: 0.1em;
+    }
   </style>
 </head>
 <body>
@@ -113,6 +122,8 @@
     <div class="updated" id="updated">Haetaan...</div>
     <div class="status"><span class="dot" id="dot"></span><span id="status-text">Yhdistetään</span></div>
   </div>
+
+  <div class="version">v1.1.0</div>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
