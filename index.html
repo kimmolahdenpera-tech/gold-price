@@ -114,6 +114,7 @@
     <div class="status"><span class="dot" id="dot"></span><span id="status-text">Yhdistetään</span></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
     const priceEl   = document.getElementById('price');
     const updatedEl = document.getElementById('updated');
@@ -124,6 +125,23 @@
 
     function formatPrice(n) {
       return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function launchConfetti() {
+      const rect = priceEl.getBoundingClientRect();
+      const cx = (rect.left + rect.right) / 2 / window.innerWidth;
+      const cy = (rect.top + rect.bottom) / 2 / window.innerHeight;
+
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        startVelocity: 40,
+        origin: { x: cx, y: cy },
+        colors: ['#e8c46a', '#c8a84b', '#f5d78e', '#fff8dc', '#a07830', '#ffffff'],
+        ticks: 200,
+        gravity: 0.9,
+        scalar: 1.1,
+      });
     }
 
     async function fetchPrice() {
@@ -138,6 +156,11 @@
         if (lastPrice !== null) {
           priceEl.classList.remove('up', 'down', 'init');
           priceEl.classList.add(p > lastPrice ? 'up' : p < lastPrice ? 'down' : 'init');
+
+          // confetti when price crosses a new ten (e.g. 4589 → 4590)
+          if (p > lastPrice && Math.floor(p / 10) > Math.floor(lastPrice / 10)) {
+            launchConfetti();
+          }
         }
 
         priceEl.textContent = formatPrice(p);
