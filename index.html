@@ -103,6 +103,44 @@
       color: #5a4818;
       letter-spacing: 0.1em;
     }
+
+    .brightness-wrap {
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .brightness-wrap input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 140px;
+      height: 3px;
+      background: #2a1e08;
+      border-radius: 2px;
+      outline: none;
+    }
+    .brightness-wrap input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #c8a84b;
+      cursor: pointer;
+    }
+    .brightness-wrap input[type=range]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #c8a84b;
+      cursor: pointer;
+      border: none;
+    }
+    .brightness-icon {
+      font-size: 0.9rem;
+      color: #3a2a0a;
+    }
   </style>
 </head>
 <body>
@@ -115,10 +153,16 @@
 
   <div class="unit">per troy unssi (oz)</div>
 
+  <div class="brightness-wrap">
+    <span class="brightness-icon">☀</span>
+    <input type="range" id="brightness" min="10" max="100" value="100" />
+    <span class="brightness-icon">☀</span>
+  </div>
+
   <div class="meta">
     <div class="updated" id="updated">Haetaan...</div>
     <div class="status"><span class="dot" id="dot"></span><span id="status-text">Yhdistetään</span></div>
-    <div class="version" id="version" title="Testaa confetti" style="cursor:pointer">v1.2.0</div>
+    <div class="version" id="version" title="Testaa confetti" style="cursor:pointer">v1.3.0</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -184,6 +228,11 @@
     }
 
     document.getElementById('version').addEventListener('click', launchConfetti);
+
+    const brightnessSlider = document.getElementById('brightness');
+    brightnessSlider.addEventListener('input', () => {
+      priceEl.style.filter = `brightness(${brightnessSlider.value}%)`;
+    });
 
     fetchPrice();
     setInterval(fetchPrice, 5_000);
